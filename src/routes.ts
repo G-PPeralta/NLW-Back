@@ -3,7 +3,6 @@ import { FastifyInstance } from "fastify";
 import dayjs from "dayjs";
 import { z } from "zod";
 import { prisma } from "./lib/prisma";
-import { request } from "http";
 
 export async function appRoutes(app: FastifyInstance) {
   app.post("/habits", async (request) => {
