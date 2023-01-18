@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import dayjs from "dayjs";
 import { z } from "zod";
 import { prisma } from "./lib/prisma";
+import { request } from "http";
 
 export async function appRoutes(app: FastifyInstance) {
   app.post("/habits", async (request) => {
@@ -26,5 +27,30 @@ export async function appRoutes(app: FastifyInstance) {
         },
       },
     });
+  });
+
+  app.get("/day", async (request) => {
+    const getDayParams = z.object({
+      date: z.coerce.date(), // o coerce é pra converter para date, já que o front sempre manda uma string
+    });
+
+    const { date } = getDayParams.parse(request.query);
+
+    const weekDay = dayjs(date).get("day");
+
+    const possibleHabits = await prisma.habit.findMany({
+      where: {
+        created_at: {
+          lte: date,
+        },
+        weekDays: {
+          some: {
+            week_day: weekDay,
+          },
+        },
+      },
+    });
+
+    return { possibleHabits };
   });
 }
